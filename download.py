@@ -25,7 +25,7 @@ from utils import mkdir, chunks, extract_month, linecount
 from scrapers import bs4_scraper, newspaper_scraper, raw_scraper
 
 parser = argparse.ArgumentParser()
-parser.add_argument("url_file", type=str)
+parser.add_argument("url_file", type=str, default="urls.txt", nargs='?')
 parser.add_argument(
     "--save_uncompressed",
     action="store_true",

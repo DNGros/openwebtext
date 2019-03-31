@@ -46,6 +46,7 @@ exclude_domains = set([
     'walmart.com',
     'roanoke.com',
     'spotrac.com',
+    "arxiv.org"
 
     # original paper excluded wikipedia
     'wikipedia.org',

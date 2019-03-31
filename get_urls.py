@@ -1,34 +1,240 @@
 import praw
 import psaw
-import tqdm
+from tqdm import tqdm
 import datetime
 
+from filter import should_exclude
 
 api = psaw.PushshiftAPI()
 
 
-# all posts until the end of 2017
-end_time = int(datetime.datetime(2018, 1, 1).timestamp())
+start_time = int(datetime.datetime(2014, 1, 1).timestamp())
+end_time = int(datetime.datetime(2019, 3, 1).timestamp())
 
 
-query = api.search_submissions(before=end_time,
-                               filter=['url', 'score'],
-                               sort='desc',
-                               score='>2',
-                               is_self=False,
-                               over_18=False)
+if __name__ == "__main__":
+    queries = [
+        ('bash', 0),
+        ('commandline', 0),
+        ('linux_programming', 1),
+        ('linux', 2),
+        ('linux4noobs', 2),
+        ('linuxadmin', 2),
+        ('linuxquestions', 2),
+        ('Ubuntu', 2),
+        ('unixporn', 2),
+        ('archlinux', 2),
+        ('programming', 2),
+        ('linux4noobs', 2),
+        ('SmartThings', 2),
+        ('homeautomation', 2),
+        ('homeassistant', 2),
+        ('tasker', 2),
+        ('googlehome', 2),
+        ('smarthome', 2),
+        ('webdev', 2),
+        ('sysadmin', 2),
+        ('compsci', 2),
+        ('Chatbots', 2),
+        ('coding', 3),
+        ('LearnProgramming', 3),
+        ('ifttt', 3),
+        ('debian', 3),
+        ('git', 4),
+        ('hacking', 4),
+        ('linuxhardware', 4),
+        ('python', 4),
+        ('javascript', 4),
+        ('amazonecho', 4),
+        ('networking', 4),
+        ('esp8266', 4),
+        ('appletv', 4),
+        ('arduino', 10),
+        ('alexa', 10),
+        ('raspberry_pi', 20),
+        ('technology', 20),
+        ('howto', 20),
+        ('Nest', 20),
+        ('PleX', 20),
+        ('Ubiquiti', 20),
+        ('hometheater', 20),
+        ('HomeImprovement', 20),
+        ('MusicNews', 20),
+        ('fitness', 20),
+        ('topofreddit', 20),
+        ('cooking', 30),
+        ('composer', 30),
+        ('music', 40),
+        ('personalfinance', 40),
+        ('gadgets', 50),
+        ('math', 50),
+        ('science', 50),
+        ('dogs', 55),
+        ('cats', 55),
+        ('FanFiction', 55),
+        ('gardening', 55),
+        ('buildapc', 55),
+        ('socialskills', 55),
+        ('vegan', 55),
+        ('tattoos', 55),
+        ('teenagers', 55),
+        ('docker', 55),
+        ('sneakers', 55),
+        ('MachineLearning', 55),
+        ('EatCheapAndHealthy', 55),
+        ('drums', 55),
+        ('worldnews', 55),
+        ('FIFA', 55),
+        ('Plumbing', 55),
+        ('baseball', 55),
+        ('entertainment', 55),
+        ('comicbooks', 55),
+        ('sports', 55),
+        ('travel', 55),
+        ('discgolf', 55),
+        ('photography', 55),
+        ('soccer', 55),
+        ('humor', 55),
+        ('finance', 55),
+        ('tech', 55),
+        ('MadeMeSmile', 55),
+        ('camping', 55),
+        ('Roku', 55),
+        ('slowcooking', 55),
+        ('literature', 55),
+        ('Outdoors', 55),
+        ('xboxone', 55),
+        ('harrypotter', 55),
+        ('bodybulding', 55),
+        ('smashbros', 55),
+        ('talesfromtechsupport', 55),
+        ('Filmmakers', 55),
+        ('learnpython', 55),
+        ('curlyhair', 55),
+        ('golf', 55),
+        ('Watches', 55),
+        ('woodworking', 55),
+        ('drawing', 55),
+        ('scifi', 55),
+        ('foodhacks', 55),
+        ('biology', 65),
+        ('books', 65),
+        ('movies', 65),
+        ('recipes', 65),
+        ('analog', 65),
+        ('olympics', 65),
+        ('aviation', 65),
+        ('marketing', 65),
+        ('boardgames', 65),
+        ('television', 65),
+        ('college', 65),
+        ('Coffee', 65),
+        ('disney', 65),
+        ('rpg', 65),
+        ('UpliftingNews', 100),
+        ('philosophy', 100),
+        ('news', 150),
+        ('environment', 150),
+        ('nottheonion', 150),
+        ('gamedev', 150),
+        ('netsec', 150),
+        ('3Dprinting', 150),
+        ('lotr', 150),
+        ('writing', 150),
+        ('civ', 150),
+        ('cosplay', 150),
+        ('TheSimpsons', 150),
+        ('knitting', 150),
+        ('NASCAR', 150),
+        ('Baking', 150),
+        ('business', 150),
+        ('DIY', 150),
+        ('gaming', 150),
+        ('nyc', 150),
+        ('london', 150),
+        ('runescape', 150),
+        ('InteriorDesign', 150),
+        ('nasa', 150),
+        ('outside', 150),
+        ('psychology', 150),
+        ('engineering', 150),
+        ('DCcomics', 150),
+        ('StockMarket', 150),
+        ('guitar', 150),
+        ('ethereum', 150),
+        ('snowboarding', 150),
+        ('web_design', 150),
+        ('Screenwriting', 150),
+        ('skiing', 150),
+        ('boxing', 150),
+        ('beer', 150),
+        ('doctorwho', 150),
+        ('netflix', 150),
+        ('stocks', 150),
+        ('startups', 150),
+        ('Animemes', 150),
+        ('bicycling', 150),
+        ('lego', 150),
+        ('teslamotors', 150),
+        ('nutrition', 150),
+        ('3DS', 150),
+        ('edm', 150),
+        ('Health', 150),
+        ('pcgaming', 150),
+        ('NetflixBestOf', 150),
+        ('cars', 150),
+        ('Autos', 150),
+        ('history', 150),
+        ('india', 200),
+        ('newzealand', 200),
+        ('Aquariums', 200),
+        ('linguistics', 200),
+        ('simpleliving', 200),
+        ('LiverpoolFC', 200),
+        ('vegetarian', 200),
+        ('playstation', 200),
+        ('mexico', 200),
+        ('KingdomHearts', 200),
+        ('singapore', 200),
+        ('Seattle', 200),
+        ('toronto', 200),
+        ('OkCupid', 200),
+        ('oculus', 200),
+        ('radiohead', 200),
+    ]
 
-with tqdm.tqdm() as pbar:
+    done_urls = set()
+
     # download links from submissions
     with open('urls.txt', 'w') as fh:
-        for subm in query:
-            url = subm.url
+        for subreddit, gt_score in tqdm(queries):
+            query = api.search_submissions(
+                after=start_time,
+                before=end_time,
+                filter=['url', 'score'],
+                sort_type='score',
+                sort='desc',
+                score=f'>{gt_score}',
+                subreddit=subreddit,
+                is_self=False,
+                #limit=1000000
+                over_18=False
+            )
+            used_links = 0
+            for i, subm in enumerate(query):
+                url = subm.url
+                if should_exclude(url) or url in done_urls:
+                    continue
 
-            # weird issue with psaw/pushshift that breaks score=">2"
-            if subm.score < 3:
-                continue
-            #print(subm.score)
-#            pbar.write(str(datetime.datetime.fromtimestamp(subm.created_utc)))
-            pbar.update(1)
-            fh.write(url + '\n')
+                # weird issue with psaw/pushshift that breaks score=">2"
+                #if i % 100 == 0:
+                #    tqdm.write(str(subm.score))
+                if not (subm.score >= gt_score):
+                    continue
+                #print(subm.score)
+    #            pbar.write(str(datetime.datetime.fromtimestamp(subm.created_utc)))
+                fh.write(url + '\n')
+                used_links += 1
+                done_urls.add(url)
+            tqdm.write(f"Used {used_links} from {subreddit}")
         fh.flush()

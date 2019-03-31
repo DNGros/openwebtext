@@ -1,4 +1,6 @@
 import multiprocessing as mp
+from typing import Set
+
 import newspaper
 import os
 import hashlib
@@ -13,6 +15,9 @@ try:
     os.mkdir('data')
 except FileExistsError:
     pass
+
+# might not be threadsafe
+past_text_hashes = set()
 
 
 def dl(url):
@@ -38,18 +43,21 @@ def dl(url):
 #        traceback.print_exc()
 
     text = article.text
+    text_hash = hash(text.encode()).hexdigest()
+    if past_text_hashes and text_hash in past_text_hashes:
+        return
 
-    
     if text.strip() == '':
 #        print('Empty')
         return
 
     with open(fname, 'w') as out:
         out.write(text)
+        past_text_hashes.add(text_hash)
 
 
 if __name__ == '__main__':
-    p = mp.Pool(100) # num of download threads
+    p = mp.Pool(40) # num of download threads
     with open('urls.txt') as fh:
         urls = list(fh)
 
